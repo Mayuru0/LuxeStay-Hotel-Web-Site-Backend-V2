@@ -6,7 +6,7 @@ import { PORT } from "./src/config/env.js";
 import dotenv from 'dotenv';
 import errorHandler from './src/middlewares/error.middleware.js';
 import galleryItemRouter from "./src/routes/galleryRoute.js";
-
+import jwt from "jsonwebtoken";
 dotenv.config();
 const app = express();
 
@@ -16,6 +16,27 @@ app.use(bodyParser.json());
 
 connectDB();
 app.use(errorHandler);
+
+app.use ((req, res, next) =>{
+    const token =req.header("Authorization")?.replace("Bearer ","")
+    
+    if(token != null){
+        jwt.verify(token,"jwt_secret",(err,decoded) =>{
+            if(decoded != null){
+                req.body.user = decoded
+                next();
+            }else{
+                next();
+            }
+            
+        })
+    }else{
+        next();
+    }
+
+})
+
+
 
 //Routes
 app.use("/api/users",userRouter);

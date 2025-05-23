@@ -1,5 +1,6 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const getUser = async (req, res) => {
   try {
@@ -29,7 +30,7 @@ export const getUser = async (req, res) => {
 // }
 
 export const createUser = async (req, res) => {
-  const { firstName, lastName, email, profilePic, phone, password } = req.body;
+  const { firstName, lastName, email, profilePic, phone, password ,type} = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -49,6 +50,7 @@ export const createUser = async (req, res) => {
       email,
       profilePic, 
       phone,
+      type,
       password: hashPassword,
     });
 
@@ -66,3 +68,36 @@ export const createUser = async (req, res) => {
     });
   }
 };
+
+
+export const loginUser = (req, res) => {
+  const credential = req.body;
+
+  User.findOne({email:credential.email,password:credential.password}).then((user) => {
+    if(!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+     else {
+     
+     const payload = {
+      _id:user._id,
+      firstName:user.firstName,
+      lastName:user.lastName,
+      email:user.email,
+     }
+
+      const token =jwt.sign(payload ,"jwt_secret");
+  
+
+    res.status(200).json({
+      success: true,
+      message: "User logged in successfully",
+      token: token,
+      data: user,
+    });
+  }
+  })
+}
