@@ -3,7 +3,7 @@ import Gallary from "../models/galleryModel.js";
 
 export const createGalleryItem =async (req, res) => {
   
-  const user =req.body.user
+  const user =req.user
   if(user ==null){
     return res.status(404).json({
       success: false,

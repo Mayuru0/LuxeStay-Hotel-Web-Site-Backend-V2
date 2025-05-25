@@ -1,27 +1,64 @@
-import {verifyToken} from "../utils/jwt.js";
+import jwt from "jsonwebtoken";
+import asyncHandler from "express-async-handler";
+import User from "../models/userModel.js";
+import {JWT_SECRET} from "./../config/env.js"
+// Middleware to protect routes with JWT authentication
+export const protect = asyncHandler(async (req, res, next) => {
+  let token;
 
-const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  // Check for token in Authorization header
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    try {
+      // Get token from header
+      token = req.headers.authorization.split(" ")[1];
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ 
-      status: 'error', 
-      message: 'Authentication token is missing' 
-    });
+      // Verify token
+      const decoded = jwt.verify(token, JWT_SECRET);
+
+      // Add user to request object (without password and OTP fields)
+      req.user = await User.findById(decoded.id).select(
+        "-password "
+      );
+
+      if (!req.user) {
+        res.status(401);
+        throw new Error("User associated with this token no longer exists");
+      }
+
+      next();
+    } catch (error) {
+      console.error(`Auth error: ${error.message}`);
+      res.status(401);
+      throw new Error("Not authorized, invalid or expired token");
+    }
   }
 
-  const token = authHeader.split(' ')[1];
+  if (!token) {
+    res.status(401);
+    throw new Error("Not authorized, no token provided");
+  }
+});
 
-  try {
-    const decoded = verifyToken(token);
-    req.user = decoded;
+// Middleware to check admin rights
+export const adminProtect = asyncHandler(async (req, res, next) => {
+  if (req.user && (req.user.role === "admin" || req.user.role === "Admin")) {
     next();
-  } catch (error) {
-    return res.status(401).json({ 
-      status: 'error', 
-      message: 'Invalid or expired token' 
-    });
+  } else {
+    res.status(403);
+    throw new Error("Not authorized as admin");
   }
-};
+});
 
-export default authMiddleware;
+
+// Middleware for verification status check
+export const verifiedProtect = asyncHandler(async (req, res, next) => {
+  if (req.user && req.user.verified === "Verified") {
+    next();
+  } else {
+    res.status(403);
+    throw new Error("Account not verified");
+  }
+});

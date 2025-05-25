@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import generateToken from "../utils/generateToken.js";
 
 export const getUser = async (req, res) => {
   try {
@@ -30,7 +31,7 @@ export const getUser = async (req, res) => {
 // }
 
 export const createUser = async (req, res) => {
-  const { firstName, lastName, email, profilePic, phone, password ,type} = req.body;
+  const { firstName, lastName, email, profilePic, phone, password ,role} = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -50,7 +51,7 @@ export const createUser = async (req, res) => {
       email,
       profilePic, 
       phone,
-      type,
+      role,
       password: hashPassword,
     });
 
@@ -70,34 +71,49 @@ export const createUser = async (req, res) => {
 };
 
 
-export const loginUser = (req, res) => {
-  const credential = req.body;
+export const loginUser = async (req, res) => {
+  const { email, password } = req.body;
 
-  User.findOne({email:credential.email,password:credential.password}).then((user) => {
-    if(!user) {
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
-     else {
-     
-     const payload = {
-      _id:user._id,
-      firstName:user.firstName,
-      lastName:user.lastName,
-      email:user.email,
-     }
 
-      const token =jwt.sign(payload ,"jwt_secret");
-  
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid password",
+      });
+    }
+
+    const payload = {
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+    };
+
+    const token = generateToken(payload);
+
+    const { password:removedPassword, _, ...userWithoutPassword } = user._doc
+
 
     res.status(200).json({
       success: true,
       message: "User logged in successfully",
       token: token,
-      data: user,
+      data: userWithoutPassword,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error logging in",
+      error: error.message,
     });
   }
-  })
-}
+};

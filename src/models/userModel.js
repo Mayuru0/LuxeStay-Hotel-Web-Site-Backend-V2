@@ -28,9 +28,10 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    type:{
+    role:{
         type:String,
         default:"user",
+        enum:["User","Admin"],
         required:true
     },
     disabled:{
@@ -39,7 +40,7 @@ const userSchema = new mongoose.Schema({
         required:true
 
     },
-    emailVerified:{
+    verified:{
         type:Boolean,
         default:false,
         required:true
