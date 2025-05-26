@@ -1,4 +1,5 @@
-import Category from "../models/category.js";
+import Category from "../models/categoryModel.js";
+
 
 
 export const createCategory =  async (req, res) => {
@@ -27,6 +28,14 @@ export const createCategory =  async (req, res) => {
 export const getCategories =async (req, res) => {
     try {
         const categories = await Category.find();
+
+       if (categories.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: "No categories found",
+                data: [],
+            });
+        }
         res.status(200).json({
             success: true,
             data: categories,
@@ -78,7 +87,13 @@ export const updateCategory =async (req, res) => {
 export const getCategoriesByName = async (req, res) => {
     try {
         const category = await Category.find({ name: req.params.name });
-
+     
+        if(!category){
+            return res.status(404).json({
+                success: false,
+                message: "Category not found",
+            });
+        }
         res.status(200).json({
             success: true,
             data: category,
@@ -120,13 +135,22 @@ export const getCategoryById = async (req, res) => {
 };
 
 
-export const deleteCategory =async (req, res) => {
+export const deleteCategory = async (req, res) => {
     try {
-        await Category.findByIdAndDelete(req.params.categoryId);
+        const category = await Category.findByIdAndDelete(req.params.CategoryId);
+
+        if (!category) {
+            return res.status(404).json({
+                success: false,
+                message: "Category not found",
+            });
+        }
+
         res.status(200).json({
             success: true,
             message: "Category deleted successfully",
         });
+
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -134,4 +158,4 @@ export const deleteCategory =async (req, res) => {
             error: error.message,
         });
     }
-}
+};

@@ -97,6 +97,15 @@ export const loginUser = async (req, res) => {
 export const getUser = async (req, res) => {
   try {
     const users = await User.find();
+  
+    if(users.length === 0){
+      return res.status(200).json({
+        success: true,
+        message: "No users found",
+        data: [],
+      });
+    }
+
     res.status(200).json({
       success: true,
       data: users,
@@ -125,6 +134,15 @@ export const getUser = async (req, res) => {
 export const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.UserId);
+   
+    if(!user){
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+
     res.status(200).json({
       success: true,
       data: user,
@@ -185,6 +203,14 @@ export const updateUser =async (req, res) => {
 export const deleteUser =async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.UserId);
+
+  if(!user){
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
     res.status(200).json({
       success: true,
       message: "User deleted successfully",

@@ -8,7 +8,8 @@ const categoryRouter =express.Router();
 
 categoryRouter.post("/create",protect ,createCategory);
 
-categoryRouter.get("/get",protect , getCategories);
+categoryRouter.get("/get" , getCategories);
+
 categoryRouter.get("/getByName/:name",protect , getCategoriesByName);
 categoryRouter.get("/getById/:CategoryId",protect , getCategoryById);
 

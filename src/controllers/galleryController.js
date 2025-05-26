@@ -41,6 +41,14 @@ export const createGalleryItem =async (req, res) => {
 export const getGalleryItems =async (req, res) => {
     try {
         const galleryItems = await Gallary.find();
+
+        if(galleryItems.length === 0){
+            return res.status(200).json({
+                success: true,
+                message: "No gallery items found",
+                data: [],
+            });
+        }
         res.status(200).json({
       success: true,
       data: galleryItems,
