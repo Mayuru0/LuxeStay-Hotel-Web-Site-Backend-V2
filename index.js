@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import errorHandler from './src/middlewares/error.middleware.js';
 import galleryItemRouter from "./src/routes/galleryRoute.js";
 import cors from "cors"
+import categoryRouter from "./src/routes/categoryRoute.js";
 dotenv.config();
 const app = express();
 
@@ -30,6 +31,7 @@ app.use(bodyParser.json());
 //Routes
 app.use("/api/users",userRouter);
 app.use("/api/gallery",galleryItemRouter);
+app.use("/api/category",categoryRouter);
 
 
 // Health check route
