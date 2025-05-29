@@ -36,6 +36,7 @@ app.use("/api/category",categoryRouter);
 app.use("/api/room",roomRouter);
 
 
+
 // Health check route
 app.get("/api/health", (req, res) => {
   res.status(200).json({
