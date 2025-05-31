@@ -9,6 +9,7 @@ import galleryItemRouter from "./src/routes/galleryRoute.js";
 import cors from "cors"
 import categoryRouter from "./src/routes/categoryRoute.js";
 import roomRouter from "./src/routes/roomRoute.js";
+import bookingRouter from "./src/routes/bookingRoute.js";
 dotenv.config();
 const app = express();
 
@@ -34,6 +35,7 @@ app.use("/api/users",userRouter);
 app.use("/api/gallery",galleryItemRouter);
 app.use("/api/category",categoryRouter);
 app.use("/api/room",roomRouter);
+app.use("/api/booking",bookingRouter);
 
 
 

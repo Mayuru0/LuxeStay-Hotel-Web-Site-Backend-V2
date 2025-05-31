@@ -62,3 +62,14 @@ export const verifiedProtect = asyncHandler(async (req, res, next) => {
     throw new Error("Account not verified");
   }
 });
+
+
+
+export const customerProtect = asyncHandler(async (req, res, next) => {
+  if (req.user && (req.user.role === "user" || req.user.role === "User")) {
+    next();
+  } else {
+    res.status(403);
+    throw new Error("Not authorized as customer");
+  }
+});

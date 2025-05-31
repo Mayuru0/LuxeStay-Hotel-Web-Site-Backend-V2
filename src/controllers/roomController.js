@@ -1,28 +1,36 @@
 import Room from "../models/roomModel.js"
+import generateRoomId from "../utils/generateRoomID.js";
+
 
 
 
 export const createRoom = async (req, res) => {
- const room = req.body
+    const roomData = req.body;
 
- const newRoom = new Room(room)
+    // Generate new room ID
+    const newRoomID = await generateRoomId();
 
- try{
-    await newRoom.save();
-    res.status(201).json({
-        success: true,
-        message:"Room Created successfully ",
-        data: newRoom,
+    // Merge generated room ID into the room data
+    const newRoom = new Room({
+        ...roomData,
+        roomID: newRoomID,
     });
- }catch(error){
-    res.status(500).json({
-        success: false,
-        message: "Failed to create room",
-        error: error.message,
-    });
- }
 
-}
+    try {
+        await newRoom.save();
+        res.status(201).json({
+            success: true,
+            message: "Room created successfully",
+            data: newRoom,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Failed to create room",
+            error: error.message,
+        });
+    }
+};
 
 
 
@@ -53,7 +61,7 @@ export const getRooms =async(req, res) =>{
 
 export const getRoomId =async(req, res) =>{
     try{
-        const room =await Rooom.findById(req.params.roomId);
+        const room =await Room.findById(req.params.roomId);
 
         if(!room){
             return res.status(404).json({
@@ -132,3 +140,29 @@ export const deleteRoom =async(req, res) =>{
         });
     }
 }
+
+
+
+export const getRoomByCategory = async (req, res) => {
+    try {
+        const rooms = await Room.find({ category: req.params.category });
+
+        if(!rooms.length ===0){
+            return res.status(200).json({
+                success: true,
+                message: "No rooms found",
+                data: [],
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data: rooms,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch rooms by category",
+            error: error.message,
+        });
+    }
+};

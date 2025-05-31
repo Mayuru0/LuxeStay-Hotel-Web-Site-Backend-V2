@@ -14,6 +14,9 @@ const gallaryItemSchema = new mongoose.Schema({
         type: String,
         required: true
     }
+}
+, {
+    timestamps: true
 });
 
 const Gallary = mongoose.model("Gallary", gallaryItemSchema);
