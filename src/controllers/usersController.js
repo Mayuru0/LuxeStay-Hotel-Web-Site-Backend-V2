@@ -23,7 +23,7 @@ export const createUser = async (req, res) => {
       firstName,
       lastName,
       email,
-      profilePic, 
+      profilePic:req.file ? req.file.path : null, 
       phone,
       role,
       password: hashPassword,
@@ -174,7 +174,7 @@ export const updateUser =async (req, res) => {
     user.lastName = req.body.lastName || user.lastName;
     user.email = req.body.email || user.email;
     user.phone = req.body.phone || user.phone;
-    user.profilePic = req.body.profilePic || user.profilePic;
+    user.profilePic = req.file ? req.file.path :user.profilePic;
     user.role = req.body.role || user.role;
 
     

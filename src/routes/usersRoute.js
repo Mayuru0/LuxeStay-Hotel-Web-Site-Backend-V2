@@ -1,7 +1,7 @@
 import express from "express";
 import { createUser, deleteUser, getUser, getUserById, getUserprofile, loginUser, updateUser } from "../controllers/usersController.js";
 import { adminProtect, protect } from "../middlewares/authMiddleware.js";
-
+import { upload } from "../utils/cloudinary.js";
 
 
 
@@ -10,13 +10,13 @@ const userRouter =express.Router();
 
 
 
-userRouter.post("/createuser",createUser);
+userRouter.post("/createuser", upload.single("profilePic"),createUser);
 userRouter.post("/login",loginUser);
 
 
 userRouter.get("/",protect,adminProtect, getUser);
 
-userRouter.put("/update/:UserId",protect, updateUser);
+userRouter.put("/update/:UserId",protect,upload.single("profilePic"), updateUser);
 
 userRouter.delete("/delete/:UserId",protect,adminProtect, deleteUser);
 
