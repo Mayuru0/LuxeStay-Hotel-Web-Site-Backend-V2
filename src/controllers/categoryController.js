@@ -3,24 +3,46 @@ import Category from "../models/categoryModel.js";
 
 
 export const createCategory =  async (req, res) => {
-    const category =req.body;
+   const {
+    name,
+    price,
+    features,
+    description,
+    image
+   } = req.body;
    
-    const newCategory =new Category(category);
-
-    try{
-        await newCategory.save();
-        res.status(201).json({
-            success: true,
-            message:"Category Created successfully ",
-            data: newCategory,
-        });
-    }catch(error){
-        res.status(500).json({
+   try {
+    const existingCategory =await Category.findOne({name});
+    if(existingCategory){
+        return res.status(400).json({
             success: false,
-            message: "Failed to create category",
-            error: error.message,
+            message: "Category already exists",
         });
     }
+    const category = await Category.create({
+        name,
+        price,
+        features,
+        description,
+        image:req.file ? req.file.path : null
+    });
+    category.save();
+    res.status(201).json({
+        success: true,
+        message: "Category created successfully",
+        data: category,
+    });
+    
+   } catch (error) {
+    res.status(500).json({
+        success: false,
+        message: "Failed to create category",
+        error: error.message,
+    });
+    
+   }
+
+   
 }
 
 
@@ -64,7 +86,7 @@ export const updateCategory =async (req, res) => {
         category.price = req.body.price || category.price;
         category.features = req.body.features || category.features;
         category.description = req.body.description || category.description;
-        category.image = req.body.image || category.image;
+        category.image = req.file ? req.file.path :category.image;
         const updatedCategory = await category.save();
         res.status(200).json({
             success: true,
