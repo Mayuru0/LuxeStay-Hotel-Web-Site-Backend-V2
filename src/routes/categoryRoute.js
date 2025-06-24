@@ -6,7 +6,7 @@ import { upload } from "../utils/cloudinary.js";
 const categoryRouter =express.Router();
 
 
-categoryRouter.post("/create",protect,upload.single("image") ,createCategory);
+categoryRouter.post("/create",protect,adminProtect,upload.single("image") ,createCategory);
 
 categoryRouter.get("/get" , getCategories);
 

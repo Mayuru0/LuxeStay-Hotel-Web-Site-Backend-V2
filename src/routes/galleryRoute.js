@@ -1,13 +1,19 @@
 import express from "express";
-import { createGalleryItem, getGalleryItems } from "../controllers/galleryController.js";
-import { protect } from "../middlewares/authMiddleware.js";
-
+import { createGalleryItem, deleteGalleryItem, getGalleryItems, getGalleryItemsById, updateGalleryItem } from "../controllers/galleryController.js";
+import { adminProtect, protect } from "../middlewares/authMiddleware.js";
+import { upload } from "../utils/cloudinary.js";
 
 
 const galleryItemRouter =express.Router();
 
-galleryItemRouter.post("/create",protect ,createGalleryItem);
-galleryItemRouter.get("/get",protect , getGalleryItems);
+galleryItemRouter.post("/create",protect ,adminProtect,upload.single("image"),createGalleryItem);
 
+galleryItemRouter.get("/get",protect,adminProtect , getGalleryItems);
+
+galleryItemRouter.get("/getById/:GalleryId",protect,adminProtect , getGalleryItemsById);
+
+galleryItemRouter.put("/update/:GalleryId",protect,adminProtect,upload.single("image"), updateGalleryItem);
+
+galleryItemRouter.delete("/delete/:galleryId",protect,adminProtect, deleteGalleryItem);
 
 export default galleryItemRouter;

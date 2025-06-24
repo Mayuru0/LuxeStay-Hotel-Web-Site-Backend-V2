@@ -2,39 +2,25 @@ import Gallary from "../models/galleryModel.js";
 
 
 export const createGalleryItem =async (req, res) => {
-  
-  const user =req.user
-  if(user ==null){
-    return res.status(404).json({
-      success: false,
-      message: "please login first",
+  const{name,description,image} = req.body;
+  try {
+    const galleryItem = await Gallary.create({
+      name,
+      description,
+      image:req.file ? req.file.path : null,
     });
-  }
-  // else if(user.type !=="admin"){
-  //   return res.status(404).json({
-  //     success: false,
-  //     message: "You are not admin",
-  //   });
-  // }
-
-
-    const galleryItem = req.body;
-
-    const newGalleryItem = new Gallary(galleryItem);
-    try {
-        await newGalleryItem.save();
-         res.status(201).json({
+    res.status(201).json({
       success: true,
-      message:"Galley Item Created successfully ",
-      data: newGalleryItem,
+      data: galleryItem,
+      message: "Gallery item created successfully",
     });
-    } catch (error) {
-        res.status(500).json({
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: "Error registering user",
+      message: "Failed to create gallery item",
       error: error.message,
     });
-    }
+  }
 }
 
 
@@ -60,4 +46,83 @@ export const getGalleryItems =async (req, res) => {
       error: error.message,
     });
     }
+}
+
+
+export const getGalleryItemsById =async (req, res) => {
+  try {
+      const galleryItem = await Gallary.findById(req.params.GalleryId);
+      if(!galleryItem){
+        return res.status(404).json({
+          success: false,
+          message: "Gallery item not found",
+        });
+      }
+      res.status(200).json({
+        success: true,
+        data: galleryItem,
+      });
+
+
+    
+  } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch gallery item",
+        error: error.message,
+      });
+    
+  }
+
+}
+
+
+export const updateGalleryItem =async (req, res) => {
+  try {
+      const galleryItem = await Gallary.findById(req.params.GalleryId);
+      if(!galleryItem){
+        return res.status(404).json({
+          success: false,
+          message: "Gallery item not found",
+        });
+      }
+      galleryItem.name = req.body.name || galleryItem.name;
+      galleryItem.description = req.body.description || galleryItem.description;
+      galleryItem.image = req.file ? req.file.path : galleryItem.image;
+      const updatedGalleryItem = await galleryItem.save();
+      res.status(200).json({
+        success: true,
+        message: "Gallery item updated successfully",
+        data: updatedGalleryItem,
+      });
+  } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to update gallery item",
+        error: error.message,
+      });
+  }
+}
+
+
+export const deleteGalleryItem =async (req, res) => {
+  try {
+      const galleryItem = await Gallary.findByIdAndDelete(req.params.galleryId);
+      if(!galleryItem){
+        return res.status(404).json({
+          success: false,
+          message: "Gallery item not found",
+        });
+      }
+      res.status(200).json({
+        success: true,
+        message: "Gallery item deleted successfully",
+      });
+  } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to delete gallery item",
+        error: error.message,
+      });
+  }
 }
