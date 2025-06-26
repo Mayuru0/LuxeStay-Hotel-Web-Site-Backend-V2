@@ -172,3 +172,34 @@ export const deleteBooking =async (req,res) =>{
         });
     }
 }
+
+
+
+// booking filter Date
+
+export const  retriveBookingByDate = async (req,res) =>{
+ 
+    try {
+        const startDate = req.body.startDate;
+        const endDate =req.body.endDate;
+
+       const bookings =await Booking.find({
+        checkInDate: { $gte: startDate, $lte: endDate },
+       });
+       res.status(200).json({
+        success: true,
+        data: bookings,
+       });
+
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch booking",
+            error: error.message,
+        });
+        
+    }
+    
+}
+
