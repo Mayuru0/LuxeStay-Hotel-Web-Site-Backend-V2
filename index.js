@@ -13,6 +13,8 @@ import bookingRouter from "./src/routes/bookingRoute.js";
 import reviewRouter from "./src/routes/reviewRoute.js";
 import adminRouter from "./src/routes/adminRoute.js";
 import contactRouter from "./src/routes/contactRoute.js";
+import bgImageRouter from "./src/routes/bgImageRoute.js";
+import destinationRouter from "./src/routes/destinationRoute.js";
 
 dotenv.config();
 const app = express();
@@ -39,6 +41,8 @@ app.use("/api/booking", bookingRouter);
 app.use("/api/review", reviewRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/contact", contactRouter);
+app.use("/api/bgimage", bgImageRouter);
+app.use("/api/destination", destinationRouter);
 
 // Health check route
 app.get("/api/health", (req, res) => {

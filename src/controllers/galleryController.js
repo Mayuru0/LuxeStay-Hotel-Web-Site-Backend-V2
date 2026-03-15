@@ -24,9 +24,10 @@ export const createGalleryItem =async (req, res) => {
 }
 
 
-export const getGalleryItems =async (req, res) => {
+export const getGalleryItems = async (req, res) => {
     try {
-        const galleryItems = await Gallary.find();
+        const filter = req.query.featured === "true" ? { isFeatured: true } : {};
+        const galleryItems = await Gallary.find(filter);
 
         if(galleryItems.length === 0){
             return res.status(200).json({
@@ -45,6 +46,20 @@ export const getGalleryItems =async (req, res) => {
       message: "Failed to fetch gallery items",
       error: error.message,
     });
+    }
+}
+
+export const toggleGalleryFeatured = async (req, res) => {
+    try {
+        const item = await Gallary.findById(req.params.galleryId);
+        if (!item) {
+            return res.status(404).json({ success: false, message: "Gallery item not found" });
+        }
+        item.isFeatured = !item.isFeatured;
+        await item.save();
+        res.status(200).json({ success: true, message: "Updated", data: item });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Failed to update", error: error.message });
     }
 }
 
