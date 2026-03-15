@@ -47,29 +47,40 @@ export const createCategory =  async (req, res) => {
 
 
 
-export const getCategories =async (req, res) => {
-    try {
-        const categories = await Category.find();
 
-       if (categories.length === 0) {
-            return res.status(200).json({
-                success: true,
-                message: "No categories found",
-                data: [],
-            });
-        }
-        res.status(200).json({
-            success: true,
-            data: categories,
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Failed to fetch categories",
-            error: error.message,
-        });
-    }
-}
+
+export const getCategories = async (req, res) => {
+  try {
+    // Query params: ?page=1&limit=10
+    const page = parseInt(req.query.page) || 1; // default = 1
+    const limit = parseInt(req.query.limit) || 2; // default = 10
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination info
+    const total = await Category.countDocuments();
+
+    // Fetch paginated categories
+    const categories = await Category.find().skip(skip).limit(limit);
+
+    res.status(200).json({
+      success: true,
+      data: categories,
+      pagination: {
+        totalItems: total, 
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        pageSize: limit,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch categories",
+      error: error.message,
+    });
+  }
+};
+
 
 
 export const updateCategory =async (req, res) => {

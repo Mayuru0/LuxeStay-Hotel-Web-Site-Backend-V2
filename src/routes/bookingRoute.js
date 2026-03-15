@@ -1,7 +1,7 @@
 import express from "express";
 
 import { customerProtect, protect } from "../middlewares/authMiddleware.js";
-import { createBooking, deleteBooking, getBookingbyId, getBookings, retriveBookingByDate, updateBooking } from "../controllers/bookingController.js";
+import { createBooking, createBookingByRooms, deleteBooking, getBookingbyId, getBookings, retriveBookingByDate, updateBooking, getMyBookings, cancelBooking } from "../controllers/bookingController.js";
 
 const bookingRouter= express.Router();
 
@@ -14,6 +14,11 @@ bookingRouter.get("/getById/:BookingId",protect ,getBookingbyId);
 
 bookingRouter.post("/filterbydate",protect ,retriveBookingByDate);
 
+bookingRouter.post("/createbycategory",protect ,customerProtect,createBookingByRooms);
+
+bookingRouter.get("/mybookings", protect, getMyBookings);
+
+bookingRouter.patch("/:bookingId/cancel", protect, cancelBooking);
 
 bookingRouter.patch("/update/:bookingId",protect,updateBooking);
 

@@ -6,38 +6,39 @@ import { PORT } from "./src/config/env.js";
 import dotenv from 'dotenv';
 import errorHandler from './src/middlewares/error.middleware.js';
 import galleryItemRouter from "./src/routes/galleryRoute.js";
-import cors from "cors"
+import cors from "cors";
 import categoryRouter from "./src/routes/categoryRoute.js";
 import roomRouter from "./src/routes/roomRoute.js";
 import bookingRouter from "./src/routes/bookingRoute.js";
+import reviewRouter from "./src/routes/reviewRoute.js";
+import adminRouter from "./src/routes/adminRoute.js";
+import contactRouter from "./src/routes/contactRoute.js";
+
 dotenv.config();
 const app = express();
 
-
-
-
-
 connectDB();
-app.use(errorHandler);
 
-
-
+// CORS - allow requests from frontend origin
+// For production, replace with specific origin from env: origin: process.env.FRONTEND_URL
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  credentials: true,
+}));
 
 // Middleware
-app.use(cors())
-app.use(express.json({ limit: "10mb" }))
+app.use(express.json({ limit: "10mb" }));
 app.use(bodyParser.json());
 
-
-
-//Routes
-app.use("/api/users",userRouter);
-app.use("/api/gallery",galleryItemRouter);
-app.use("/api/category",categoryRouter);
-app.use("/api/room",roomRouter);
-app.use("/api/booking",bookingRouter);
-
-
+// Routes
+app.use("/api/users", userRouter);
+app.use("/api/gallery", galleryItemRouter);
+app.use("/api/category", categoryRouter);
+app.use("/api/room", roomRouter);
+app.use("/api/booking", bookingRouter);
+app.use("/api/review", reviewRouter);
+app.use("/api/admin", adminRouter);
+app.use("/api/contact", contactRouter);
 
 // Health check route
 app.get("/api/health", (req, res) => {
@@ -45,24 +46,12 @@ app.get("/api/health", (req, res) => {
     success: true,
     message: "Server is running",
     timestamp: new Date().toISOString(),
-  })
-})
-
-
-
-
-
-// Error handling middleware
-app.use(errorHandler)
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}🚀 `);
+  });
 });
 
+// Error handling middleware — must be AFTER all routes
+app.use(errorHandler);
 
-
-
-
-
- 
-
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT} 🚀`);
+});

@@ -8,7 +8,7 @@ const galleryItemRouter =express.Router();
 
 galleryItemRouter.post("/create",protect ,adminProtect,upload.single("image"),createGalleryItem);
 
-galleryItemRouter.get("/get",protect,adminProtect , getGalleryItems);
+galleryItemRouter.get("/get", getGalleryItems);
 
 galleryItemRouter.get("/getById/:GalleryId",protect,adminProtect , getGalleryItemsById);
 

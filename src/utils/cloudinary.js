@@ -16,7 +16,7 @@ const storage = new CloudinaryStorage({
   params: {
     folder: "hotel-management-system-images", // Folder name in Cloudinary
     format: async (req, file) => "png", // Convert all images to PNG
-    public_id: (req, file) => `${Date.now()}-${file.originalname}`,
+    public_id: (req, file) => `${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, "")}`,
   },
 });
 

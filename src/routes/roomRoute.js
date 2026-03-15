@@ -1,17 +1,19 @@
 import express from "express";
 import { protect } from "../middlewares/authMiddleware.js";
-import { createRoom, deleteRoom, getRoomByCategory, getRooms, updateRoom } from "../controllers/roomController.js";
+import { createRoom, deleteRoom, getRoomByCategory, getRoomId, getRooms, updateRoom, getAvailableRooms } from "../controllers/roomController.js";
 
 const roomRouter = express.Router();
 
 
 roomRouter.post("/create",protect ,createRoom);
 
-roomRouter.get("/get",protect , getRooms);
+roomRouter.get("/get", getRooms);
 
-roomRouter.get("/getById/:RoomId",protect , getRooms);
+roomRouter.get("/available", getAvailableRooms);
 
-roomRouter.get("/getByCategory/:CategoryId",protect , getRoomByCategory);
+roomRouter.get("/getById/:RoomId", getRoomId);
+
+roomRouter.get("/getByCategory/:CategoryId", getRoomByCategory);
 
 
 roomRouter.put("/update/:RoomId",protect, updateRoom);

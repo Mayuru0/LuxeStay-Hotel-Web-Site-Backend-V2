@@ -1,7 +1,9 @@
 const errorHandler = (err, req, res, next) => {
   console.error(err.stack);
 
-  let statusCode = err.statusCode || err.status || 500;
+  let statusCode = res.statusCode && res.statusCode !== 200
+    ? res.statusCode
+    : err.statusCode || err.status || 500;
   let message = err.message || "Internal server error";
 
   // Handle Mongoose bad ObjectId

@@ -1,5 +1,6 @@
 import Room from "../models/roomModel.js"
-import generateRoomId from "../utils/generateRoomID.js";
+import Booking from "../models/bookingModel.js";
+import generateRoomId from "../utils/generateRoomId.js";
 
 
 
@@ -36,9 +37,9 @@ export const createRoom = async (req, res) => {
 
 export const getRooms =async(req, res) =>{
     try{
-        const rooms =await Room.find();
+        const rooms =await Room.find().populate("category");
 
-        if(!rooms.length ===0){
+        if(rooms.length === 0){
             return res.status(200).json({
                 success: true,
                 message: "No rooms found",
@@ -61,7 +62,7 @@ export const getRooms =async(req, res) =>{
 
 export const getRoomId =async(req, res) =>{
     try{
-        const room =await Room.findById(req.params.roomId);
+        const room =await Room.findById(req.params.RoomId).populate("category");
 
         if(!room){
             return res.status(404).json({
@@ -147,7 +148,7 @@ export const getRoomByCategory = async (req, res) => {
     try {
         const rooms = await Room.find({ category: req.params.category });
 
-        if(!rooms.length ===0){
+        if(rooms.length === 0){
             return res.status(200).json({
                 success: true,
                 message: "No rooms found",
@@ -162,6 +163,63 @@ export const getRoomByCategory = async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Failed to fetch rooms by category",
+            error: error.message,
+        });
+    }
+};
+
+
+export const getAvailableRooms = async (req, res) => {
+    try {
+        const { checkIn, checkOut, guests, category } = req.query;
+
+        if (!checkIn || !checkOut) {
+            return res.status(400).json({
+                success: false,
+                message: "checkIn and checkOut dates are required",
+            });
+        }
+
+        const checkInDate = new Date(checkIn);
+        const checkOutDate = new Date(checkOut);
+
+        // Find bookings that overlap with the requested date range (exclude cancelled)
+        const overlappingBookings = await Booking.find({
+            status: { $ne: "cancelled" },
+            $or: [
+                {
+                    checkInDate: { $lt: checkOutDate },
+                    checkOutDate: { $gt: checkInDate },
+                },
+            ],
+        });
+
+        const bookedRoomIds = overlappingBookings.map((b) => b.roomId);
+
+        // Build filter query
+        const filter = {
+            _id: { $nin: bookedRoomIds },
+            availability: true,
+        };
+
+        if (guests) {
+            filter.maxGuests = { $gte: Number(guests) };
+        }
+
+        if (category) {
+            filter.category = category;
+        }
+
+        const rooms = await Room.find(filter).populate("category");
+
+        return res.status(200).json({
+            success: true,
+            data: rooms,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch available rooms",
             error: error.message,
         });
     }
